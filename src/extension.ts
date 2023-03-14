@@ -1,26 +1,88 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import axios from "axios";
+import * as vscode from "vscode";
+import { ChatGPTRequest, ChatGPTResponse } from "./chatgpt";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
+  let apiKey = vscode.workspace
+    .getConfiguration()
+    .get("vsc-chatgpt-grammar.apiKey");
+  if (!apiKey) {
+    const apiKeyInput = vscode.window.showInputBox({
+      prompt: "Please enter your API key",
+    });
+    await apiKeyInput.then((value) => {
+      if (value) {
+        vscode.workspace
+          .getConfiguration()
+          .update(
+            "vsc-chatgpt-grammar.apiKey",
+            value,
+            vscode.ConfigurationTarget.Global
+          );
+		  apiKey = value;
+        vscode.window.showInformationMessage("API key saved successfully!");
+      }
+    });
+  }
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "chatgpt-vsc" is now active!');
+  let disposable = vscode.commands.registerCommand(
+    "chatgpt-vsc.grammar",
+    async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        return;
+      }
+      const selectedText = editor.document.getText(editor.selection);
+      if (!selectedText) {
+        return;
+      }
+      try {
+        const data: ChatGPTRequest = {
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a helpful assistant that help user to correct grammar mistakes, typos, and factual errors or to generate text when user is asking for help. only reply the corrected text, do not include `corrected text:`",
+            },
+            { role: "user", content: selectedText },
+          ],
+          model: "gpt-3.5-turbo-0301",
+          max_tokens: 2000,
+          temperature: 0.5,
+          top_p: 1,
+          frequency_penalty: 1.3,
+          presence_penalty: 1.3,
+        };
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('chatgpt-vsc.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from chatgpt-vsc!');
-	});
+        // Create headers
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + apiKey,
+        };
+        const response = await axios.post(
+          "https://api.openai.com/v1/chat/completions",
+          data,
+          {
+            headers,
+          }
+        );
+        const result: ChatGPTResponse = response.data;
+        const edit = new vscode.WorkspaceEdit();
+        edit.replace(
+          editor.document.uri,
+          editor.selection,
+          result.choices[0].message.content
+        );
+        await vscode.workspace.applyEdit(edit);
+		vscode.window.showInformationMessage('Corrected text updated successfully!');
+      } catch (error) {
+        console.error(error);
+        vscode.window.showErrorMessage("Failed to call chatgpt");
+      }
+    }
+  );
 
-	context.subscriptions.push(disposable);
+  context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}
