@@ -1,28 +1,38 @@
-import axios from "axios";
+/* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode";
-import { ChatGPTRequest, ChatGPTResponse } from "./chatgpt";
+import { processSelectedText } from "./chatgpt";
+
+function removeTextBeforeAndAfterFirstTripleBackticks(
+  response: string
+): string {
+  return response.replace(/[\s\S]*?^```\n?/, "").replace(/```$/, "");
+}
 
 export async function activate(context: vscode.ExtensionContext) {
-  let apiKey = vscode.workspace
-    .getConfiguration()
-    .get("vsc-chatgpt-grammar.apiKey");
+  let apiKey = vscode.workspace.getConfiguration().get("chatgpt-vsc.apiKey");
   if (!apiKey) {
-    const apiKeyInput = vscode.window.showInputBox({
+    const value = await vscode.window.showInputBox({
       prompt: "Please enter your API key",
     });
-    await apiKeyInput.then((value) => {
-      if (value) {
-        vscode.workspace
-          .getConfiguration()
-          .update(
-            "vsc-chatgpt-grammar.apiKey",
-            value,
-            vscode.ConfigurationTarget.Global
-          );
-		  apiKey = value;
-        vscode.window.showInformationMessage("API key saved successfully!");
-      }
-    });
+    if (value) {
+      await vscode.workspace
+        .getConfiguration()
+        .update("chatgpt-vsc.apiKey", value, vscode.ConfigurationTarget.Global);
+      apiKey = value;
+      vscode.window.showInformationMessage("API key saved successfully!");
+    }
+  }
+
+  const statusBarMessage = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Left
+  );
+
+  function showTemporaryStatusMessage(message: string, duration: number) {
+    statusBarMessage.text = message;
+    statusBarMessage.show();
+    setTimeout(() => {
+      statusBarMessage.hide();
+    }, duration);
   }
 
   let disposable = vscode.commands.registerCommand(
@@ -36,53 +46,68 @@ export async function activate(context: vscode.ExtensionContext) {
       if (!selectedText) {
         return;
       }
-      try {
-        const data: ChatGPTRequest = {
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are a helpful assistant that help user to correct grammar mistakes, typos, and factual errors or to generate text when user is asking for help. only reply the corrected text, do not include `corrected text:`",
-            },
-            { role: "user", content: selectedText },
-          ],
-          model: "gpt-3.5-turbo-0301",
-          max_tokens: 2000,
-          temperature: 0.5,
-          top_p: 1,
-          frequency_penalty: 1.3,
-          presence_penalty: 1.3,
-        };
+      
+      showTemporaryStatusMessage("Calling chatgpt.....", 5000);
+      const correctedText = await processSelectedText(
+        apiKey as string,
+        `Correct the following text to standard English:
+        Text: """
+        ${selectedText} 
+        """`
+      );
+      if (correctedText) {
+        await editor.edit((editBuilder) => {
+          editBuilder.replace(editor.selection, correctedText);
+        });
+        showTemporaryStatusMessage(
+          "Corrected text updated successfully!",
+          5000
+        );
+      } else {
+        showTemporaryStatusMessage("Failed to call chatgpt!", 5000);
+      }
+    }
+  );
 
-        // Create headers
-        const headers = {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + apiKey,
-        };
-        const response = await axios.post(
-          "https://api.openai.com/v1/chat/completions",
-          data,
-          {
-            headers,
-          }
-        );
-        const result: ChatGPTResponse = response.data;
-        const edit = new vscode.WorkspaceEdit();
-        edit.replace(
-          editor.document.uri,
-          editor.selection,
-          result.choices[0].message.content
-        );
-        await vscode.workspace.applyEdit(edit);
-		vscode.window.showInformationMessage('Corrected text updated successfully!');
-      } catch (error) {
-        console.error(error);
-        vscode.window.showErrorMessage("Failed to call chatgpt");
+  let customQueryDisposable = vscode.commands.registerCommand(
+    "chatgpt-vsc.customQuery",
+    async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        return;
+      }
+      const selectedText = editor.document.getText(editor.selection);
+
+      const customQuery = await vscode.window.showInputBox({
+        prompt: "Enter your custom query",
+      });
+      if (!customQuery) {
+        return;
+      }
+      showTemporaryStatusMessage("Calling chatgpt.....", 5000);
+      const correctedText = await processSelectedText(
+        apiKey as string,
+        `${customQuery}, please provide the code snippet only, without any explanation or triple backticks, for the following:
+         code: 
+         """
+         ${selectedText} 
+         """`,
+        "You are an AI assistant specializing in software development. Your goal is to provide helpful guidance, code examples, and explanations related to programming concepts, languages, and frameworks. Please provide the code snippet only, without any explanation or triple backticks"
+      );
+      if (correctedText) {
+        const res = removeTextBeforeAndAfterFirstTripleBackticks(correctedText);
+        await editor.edit((editBuilder) => {
+          editBuilder.replace(editor.selection, res);
+        });
+        showTemporaryStatusMessage("Updated successfully!", 5000);
+      } else {
+        showTemporaryStatusMessage("Failed to call chatgpt!", 5000);
       }
     }
   );
 
   context.subscriptions.push(disposable);
+  context.subscriptions.push(customQueryDisposable);
 }
 
 export function deactivate() {}
