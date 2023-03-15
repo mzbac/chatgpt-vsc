@@ -2,6 +2,8 @@
 
 ChatGPT-VSC is a Visual Studio Code extension that allows you to call an OpenAI GPT model with a selected text and replace it with the generated response.
 
+[![chatgpt-vsc-demo](https://img.youtube.com/vi/1Hj7P0RO6jo/0.jpg)](https://www.youtube.com/watch?v=1Hj7P0RO6jo)
+
 ## Features
 
 - Call an OpenAI GPT model with a selected text
