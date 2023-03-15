@@ -2,7 +2,7 @@
   "name": "chatgpt-vsc",
   "displayName": "chatgpt-vsc",
   "description": "chatgpt integration to make developer life easier",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/mzbac/chatgpt-vsc.git"
@@ -15,7 +15,10 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:chatgpt-vsc.grammar",
+    "onCommand:chatgpt-vsc.customQuery"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [

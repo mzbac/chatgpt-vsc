@@ -44,7 +44,7 @@ export type ChatGPTResponse = {
 export async function processSelectedText(
   apiKey: string,
   selectedText: string,
-  systemPrompt: string = "You are a helpful assistant that help user to correct grammar mistakes, typos, and factual errors or to generate text when user is asking for help. only reply the corrected text, do not include `corrected text:`"
+  systemPrompt: string = "You are a helpful assistant that corrects grammar mistakes, typos, factual errors, and translates text when necessary."
 ): Promise<string | null> {
   try {
     const data: ChatGPTRequest = {
@@ -57,7 +57,7 @@ export async function processSelectedText(
       ],
       model: "gpt-3.5-turbo-0301",
       max_tokens: 2000,
-      temperature: 0.5,
+      temperature: 0.7,
       top_p: 1,
       frequency_penalty: 1.3,
       presence_penalty: 1.3,

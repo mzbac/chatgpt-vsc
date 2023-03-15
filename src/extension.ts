@@ -50,10 +50,7 @@ export async function activate(context: vscode.ExtensionContext) {
       showTemporaryStatusMessage("Calling chatgpt.....", 5000);
       const correctedText = await processSelectedText(
         apiKey as string,
-        `Correct the following text to standard English:
-        Text: """
-        ${selectedText} 
-        """`
+        `Please correct, polish, or translate the following text to standard English. Make sure not to include any quotes or additional information, like the source language, in your output. [Text=${selectedText}]`
       );
       if (correctedText) {
         await editor.edit((editBuilder) => {
