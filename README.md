@@ -27,6 +27,6 @@ This extension contributes the following configuration settings:
 
 To use this extension, follow these steps:
 
-1. Select some text in the editor
-2. Right-click on the selected text to open the context menu. Click on the `Grammar check` command or use keyboard shortcut `shift+cmd+'` to call the OpenAI GPT model with the selected text as input.
-3. The selected text will be replaced with the generated response
+1. Select some text in the editor.
+2. Right-click on the selected text to open the context menu. Click on the "Grammar check" command or use keyboard shortcut "shift+cmd+'" to call the OpenAI GPT model with the selected text as input.
+3. The selected text will be replaced with the generated response.
