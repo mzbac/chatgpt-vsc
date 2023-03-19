@@ -1,6 +1,6 @@
 # ChatGPT-VSC
 
-ChatGPT-VSC is a Visual Studio Code extension that integrates OpenAI GPT into your editor to help with grammar correction, code snippets, and custom queries.
+ChatGPT-VSC is a Visual Studio Code extension that integrates OpenAI GPT into your editor to help with grammar correction, code snippets, custom queries, and generating unit tests.
 
 [![chatgpt-vsc-demo](https://img.youtube.com/vi/1Hj7P0RO6jo/0.jpg)](https://www.youtube.com/watch?v=1Hj7P0RO6jo)
 
@@ -9,6 +9,7 @@ ChatGPT-VSC is a Visual Studio Code extension that integrates OpenAI GPT into yo
 - Correct grammar and polish selected text using the ChatGPT model
 - Generate code snippets based on custom queries
 - Replace the selected text with the generated response
+- Generate unit test code for the selected code snippet
 
 ## Requirements
 
@@ -46,6 +47,14 @@ To use this extension, follow these steps:
 2. Right-click on the selected text to open the context menu. Click on the "ChatGPT Custom Query" command.
 3. A prompt will appear asking for your custom query. Enter your query and press Enter.
 4. The selected text will be replaced with the generated response based on your custom query.
+
+### Generate unit test
+
+1. Select a code snippet in the editor.
+2. Right-click on the selected code to open the context menu. Click on the "ChatGPT Generate Unit Test" command.
+3. The generated unit test code will be appended after the selected code snippet.
+
+Note: For the "Generate unit test" command, it's important to select the entire code snippet for which you want to generate unit tests.
 
 ## Sequence Diagram
 

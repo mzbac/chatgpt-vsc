@@ -5,11 +5,12 @@ import { processSelectedText } from "./chatgpt";
 function removeTextBeforeAndAfterFirstTripleBackticks(
   response: string
 ): string {
-  return response.replace(/[\s\S]*?^```\n?/, "").replace(/```$/, "");
+  return response.replace(/[\s\S]*?```[\S]*\n?/, "").replace(/```$/, "");
 }
 
-let disposable: vscode.Disposable | undefined;
+let grammarDisposable: vscode.Disposable | undefined;
 let customQueryDisposable: vscode.Disposable | undefined;
+let generateUnitTestDisposable: vscode.Disposable | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
   let apiKey = vscode.workspace.getConfiguration().get("chatgpt-vsc.apiKey");
@@ -38,7 +39,7 @@ export async function activate(context: vscode.ExtensionContext) {
     }, duration);
   }
 
-  disposable = vscode.commands.registerCommand(
+  grammarDisposable = vscode.commands.registerCommand(
     "chatgpt-vsc.grammar",
     async () => {
       const editor = vscode.window.activeTextEditor;
@@ -118,16 +119,64 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     }
   );
+  generateUnitTestDisposable = vscode.commands.registerCommand(
+    "chatgpt-vsc.generateUnitTest",
+    async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        return;
+      }
 
-  context.subscriptions.push(disposable);
+      const selectedText = editor.document.getText(editor.selection);
+      if (!selectedText) {
+        vscode.window.showInformationMessage(
+          "Please select the code to generate unit tests for."
+        );
+        return;
+      }
+
+      showTemporaryStatusMessage("Calling chatgpt.....", 5000);
+
+      const unitTestPrompt = `Generate a unit test for the following code snippet and provide the test code snippet only, without any text, comments, or triple backticks:
+code: 
+"""
+${selectedText} 
+"""`;
+
+      const unitTestCode = await processSelectedText(
+        apiKey as string,
+        unitTestPrompt,
+        "You are an AI assistant specializing in software development. Your goal is to generate unit tests for the provided code snippets. Ensure that you provide the unit test code snippet only, without any explanations, comments, or triple backticks."
+      );
+
+      if (unitTestCode) {
+        const res = removeTextBeforeAndAfterFirstTripleBackticks(unitTestCode);
+        await editor.edit((editBuilder) => {
+          editBuilder.insert(editor.selection.end, "\n\n" + res);
+        });
+        showTemporaryStatusMessage(
+          "Unit test code generated successfully!",
+          5000
+        );
+      } else {
+        showTemporaryStatusMessage("Failed to call chatgpt!", 5000);
+      }
+    }
+  );
+
+  context.subscriptions.push(grammarDisposable);
   context.subscriptions.push(customQueryDisposable);
+  context.subscriptions.push(generateUnitTestDisposable);
 }
 
 export function deactivate() {
-  if (disposable) {
-    disposable.dispose();
+  if (grammarDisposable) {
+    grammarDisposable.dispose();
   }
   if (customQueryDisposable) {
     customQueryDisposable.dispose();
+  }
+  if (generateUnitTestDisposable) {
+    generateUnitTestDisposable.dispose();
   }
 }
