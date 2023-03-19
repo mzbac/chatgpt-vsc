@@ -1,15 +1,20 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import axios from "axios";
+import * as vscode from "vscode";
 
 export type Message = {
   role: "system" | "user" | "assistant";
   content: string;
 };
 
-type model = "gpt-3.5-turbo" | "gpt-3.5-turbo-0301" | "gpt-4" | "gpt-4-0314";
+type ModelName =
+  | "gpt-3.5-turbo"
+  | "gpt-3.5-turbo-0301"
+  | "gpt-4"
+  | "gpt-4-0314";
 
 export type ChatGPTRequest = {
-  model: model;
+  model: ModelName;
   messages: Message[];
   temperature?: number;
   top_p?: number;
@@ -43,16 +48,18 @@ export type ChatGPTResponse = {
   usage: Usage;
 };
 
-import * as vscode from "vscode";
-
 export async function processSelectedText(
   apiKey: string,
   selectedText: string,
-  systemPrompt: string = "You are a helpful assistant that corrects grammar mistakes, typos, factual errors, and translates text when necessary."
+  prompt?: string
 ): Promise<string | null> {
+  const systemPrompt =
+    prompt ||
+    "You are a helpful assistant that corrects grammar mistakes, typos, factual errors, and translates text when necessary.";
+
   try {
     const config = vscode.workspace.getConfiguration("chatgpt-vsc");
-    const model = config.get<model>("model") || "gpt-3.5-turbo-0301";
+    const model = config.get<ModelName>("model") || "gpt-3.5-turbo-0301";
     const temperature = config.get<number>("temperature") || 0.7;
     const maxTokens = config.get<number>("maxTokens") || 2000;
     const topP = config.get<number>("topP") || 1;

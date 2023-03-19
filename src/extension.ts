@@ -8,6 +8,9 @@ function removeTextBeforeAndAfterFirstTripleBackticks(
   return response.replace(/[\s\S]*?^```\n?/, "").replace(/```$/, "");
 }
 
+let disposable: vscode.Disposable | undefined;
+let customQueryDisposable: vscode.Disposable | undefined;
+
 export async function activate(context: vscode.ExtensionContext) {
   let apiKey = vscode.workspace.getConfiguration().get("chatgpt-vsc.apiKey");
   if (!apiKey) {
@@ -35,7 +38,7 @@ export async function activate(context: vscode.ExtensionContext) {
     }, duration);
   }
 
-  let disposable = vscode.commands.registerCommand(
+  disposable = vscode.commands.registerCommand(
     "chatgpt-vsc.grammar",
     async () => {
       const editor = vscode.window.activeTextEditor;
@@ -44,6 +47,7 @@ export async function activate(context: vscode.ExtensionContext) {
       }
       const selectedText = editor.document.getText(editor.selection);
       if (!selectedText) {
+        showTemporaryStatusMessage("No text selected!", 5000);
         return;
       }
 
@@ -53,27 +57,41 @@ export async function activate(context: vscode.ExtensionContext) {
         `Please correct, polish or translate the following text into standard English. Do not include any additional information in your output.[Text=${selectedText}]`
       );
       if (correctedText) {
-        await editor.edit((editBuilder) => {
-          editBuilder.replace(editor.selection, correctedText);
-        });
-        showTemporaryStatusMessage(
-          "Corrected text updated successfully!",
-          5000
-        );
+        try {
+          await editor.edit((editBuilder) => {
+            editBuilder.replace(editor.selection, correctedText);
+          });
+          showTemporaryStatusMessage(
+            "Corrected text updated successfully!",
+            5000
+          );
+        } catch (error) {
+          console.error(error);
+          showTemporaryStatusMessage("Failed to update text!", 5000);
+        }
       } else {
         showTemporaryStatusMessage("Failed to call chatgpt!", 5000);
       }
     }
   );
 
-  let customQueryDisposable = vscode.commands.registerCommand(
+  customQueryDisposable = vscode.commands.registerCommand(
     "chatgpt-vsc.customQuery",
     async () => {
       const editor = vscode.window.activeTextEditor;
       if (!editor) {
         return;
       }
+
       const selectedText = editor.document.getText(editor.selection);
+      const textForQuery = selectedText
+        ? `
+           code: 
+           """
+           ${selectedText}
+           """
+           `
+        : "";
 
       const customQuery = await vscode.window.showInputBox({
         prompt: "Enter your custom query",
@@ -81,16 +99,14 @@ export async function activate(context: vscode.ExtensionContext) {
       if (!customQuery) {
         return;
       }
+
       showTemporaryStatusMessage("Calling chatgpt.....", 5000);
       const correctedText = await processSelectedText(
         apiKey as string,
-        `${customQuery}, please provide the code snippet only, without any explanation or triple backticks, for the following:
-         code: 
-         """
-         ${selectedText} 
-         """`,
+        `${customQuery}, please provide the code snippet only, without any explanation or triple backticks, for the following:${textForQuery}`,
         "You are an AI assistant specializing in software development. Your goal is to provide the user asked code examples, please provide the code snippet only, without any explanation or triple backticks."
       );
+
       if (correctedText) {
         const res = removeTextBeforeAndAfterFirstTripleBackticks(correctedText);
         await editor.edit((editBuilder) => {
@@ -107,4 +123,11 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(customQueryDisposable);
 }
 
-export function deactivate() {}
+export function deactivate() {
+  if (disposable) {
+    disposable.dispose();
+  }
+  if (customQueryDisposable) {
+    customQueryDisposable.dispose();
+  }
+}
