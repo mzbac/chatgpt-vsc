@@ -6,8 +6,10 @@ export type Message = {
   content: string;
 };
 
+type model = "gpt-3.5-turbo" | "gpt-3.5-turbo-0301" | "gpt-4" | "gpt-4-0314";
+
 export type ChatGPTRequest = {
-  model: "gpt-3.5-turbo" | "gpt-3.5-turbo-0301";
+  model: model;
   messages: Message[];
   temperature?: number;
   top_p?: number;
@@ -41,12 +43,22 @@ export type ChatGPTResponse = {
   usage: Usage;
 };
 
+import * as vscode from "vscode";
+
 export async function processSelectedText(
   apiKey: string,
   selectedText: string,
   systemPrompt: string = "You are a helpful assistant that corrects grammar mistakes, typos, factual errors, and translates text when necessary."
 ): Promise<string | null> {
   try {
+    const config = vscode.workspace.getConfiguration("chatgpt-vsc");
+    const model = config.get<model>("model") || "gpt-3.5-turbo-0301";
+    const temperature = config.get<number>("temperature") || 0.7;
+    const maxTokens = config.get<number>("maxTokens") || 2000;
+    const topP = config.get<number>("topP") || 1;
+    const frequencyPenalty = config.get<number>("frequencyPenalty") || 1.3;
+    const presencePenalty = config.get<number>("presencePenalty") || 1.3;
+
     const data: ChatGPTRequest = {
       messages: [
         {
@@ -55,12 +67,12 @@ export async function processSelectedText(
         },
         { role: "user", content: selectedText },
       ],
-      model: "gpt-3.5-turbo-0301",
-      max_tokens: 2000,
-      temperature: 0.7,
-      top_p: 1,
-      frequency_penalty: 1.3,
-      presence_penalty: 1.3,
+      model: model,
+      max_tokens: maxTokens,
+      temperature: temperature,
+      top_p: topP,
+      frequency_penalty: frequencyPenalty,
+      presence_penalty: presencePenalty,
     };
 
     const headers = {

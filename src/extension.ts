@@ -46,11 +46,11 @@ export async function activate(context: vscode.ExtensionContext) {
       if (!selectedText) {
         return;
       }
-      
+
       showTemporaryStatusMessage("Calling chatgpt.....", 5000);
       const correctedText = await processSelectedText(
         apiKey as string,
-        `Please correct, polish, or translate the following text to standard English. Make sure not to include any quotes or additional information, like the source language, in your output. [Text=${selectedText}]`
+        `Please correct, polish or translate the following text into standard English. Do not include any additional information in your output.[Text=${selectedText}]`
       );
       if (correctedText) {
         await editor.edit((editBuilder) => {
@@ -89,7 +89,7 @@ export async function activate(context: vscode.ExtensionContext) {
          """
          ${selectedText} 
          """`,
-        "You are an AI assistant specializing in software development. Your goal is to provide helpful guidance, code examples, and explanations related to programming concepts, languages, and frameworks. Please provide the code snippet only, without any explanation or triple backticks"
+        "You are an AI assistant specializing in software development. Your goal is to provide the user asked code examples, please provide the code snippet only, without any explanation or triple backticks."
       );
       if (correctedText) {
         const res = removeTextBeforeAndAfterFirstTripleBackticks(correctedText);
