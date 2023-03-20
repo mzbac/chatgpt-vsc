@@ -2,7 +2,8 @@
 import * as vscode from "vscode";
 import * as path from "path";
 
-import { chatWithGPT, Message, processSelectedText } from "./chatgpt";
+import { chatWithGPT, processSelectedText } from "./chatgpt";
+import { Message } from "./chatgpt-utils";
 
 function removeTextBeforeAndAfterFirstTripleBackticks(
   response: string
