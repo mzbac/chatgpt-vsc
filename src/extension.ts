@@ -9,6 +9,52 @@ function removeTextBeforeAndAfterFirstTripleBackticks(
 ): string {
   return response.replace(/[\s\S]*?```[\S]*\n?/, "").replace(/```$/, "");
 }
+const asciiLoadingFrames = ["|", "/", "-", "\\"];
+let statusBarItem: vscode.StatusBarItem | undefined;
+let animationInterval: NodeJS.Timeout | undefined;
+
+function showTemporaryStatusMessage(
+  message: string,
+  timeout?: number,
+  animate?: boolean
+) {
+  if (!statusBarItem) {
+    statusBarItem = vscode.window.createStatusBarItem(
+      vscode.StatusBarAlignment.Left
+    );
+  }
+  statusBarItem.text = message;
+  statusBarItem.show();
+
+  if (animate) {
+    let counter = 0;
+    animationInterval = setInterval(() => {
+      counter = (counter + 1) % asciiLoadingFrames.length;
+      if (statusBarItem) {
+        statusBarItem.text = message + " " + asciiLoadingFrames[counter];
+      }
+    }, 100);
+  }
+
+  if (timeout) {
+    setTimeout(() => {
+      statusBarItem?.hide();
+      if (animationInterval) {
+        clearInterval(animationInterval);
+      }
+    }, timeout);
+  }
+}
+
+function hideStatusMessage() {
+  if (statusBarItem) {
+    statusBarItem.hide();
+  }
+  if (animationInterval) {
+    clearInterval(animationInterval);
+    animationInterval = undefined;
+  }
+}
 
 let grammarDisposable: vscode.Disposable | undefined;
 let customQueryDisposable: vscode.Disposable | undefined;
@@ -28,18 +74,6 @@ export async function activate(context: vscode.ExtensionContext) {
       apiKey = value;
       vscode.window.showInformationMessage("API key saved successfully!");
     }
-  }
-
-  const statusBarMessage = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Left
-  );
-
-  function showTemporaryStatusMessage(message: string, duration: number) {
-    statusBarMessage.text = message;
-    statusBarMessage.show();
-    setTimeout(() => {
-      statusBarMessage.hide();
-    }, duration);
   }
 
   grammarDisposable = vscode.commands.registerCommand(
@@ -232,12 +266,15 @@ export async function activate(context: vscode.ExtensionContext) {
         }
 
         chatHistory.push({ role: "user", content: message });
-        showTemporaryStatusMessage("Calling ChatGPT API...", 5000);
+        showTemporaryStatusMessage("Calling ChatGPT API...", undefined, true);
+        let chatGPTResponse;
+        try {
+          chatGPTResponse = await chatWithGPT(apiKey as string, chatHistory);
+        } catch (e: any) {
+          showTemporaryStatusMessage("Failed to call ChatGPT API!", e.message);
+        }
 
-        const chatGPTResponse = await chatWithGPT(
-          apiKey as string,
-          chatHistory
-        );
+        hideStatusMessage();
 
         if (chatGPTResponse) {
           chatHistory.push({ role: "assistant", content: chatGPTResponse });
