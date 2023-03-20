@@ -6,10 +6,10 @@ ChatGPT-VSC is a Visual Studio Code extension that integrates OpenAI GPT into yo
 
 ## Features
 
-- Correct grammar and polish selected text using the ChatGPT model
-- Generate code snippets based on custom queries
-- Replace the selected text with the generated response
-- Generate unit test code for the selected code snippet
+- Grammar check: Select a piece of text and run the "ChatGPT Grammar Check" command to correct grammar and polish the text.
+- Custom code generation: Select a piece of code or just run the "ChatGPT Custom Query" command to generate code based on your custom query.
+- Unit test generation: Select a piece of code and run the "ChatGPT Generate Unit Test" command to generate unit tests for the selected code.
+- Chat with GPT: Run the "ChatGPT Chat" command to have a conversation with GPT in a new markdown file, where you can ask questions or get help on various topics.
 
 ## Requirements
 
@@ -33,29 +33,14 @@ This extension contributes the following configuration settings:
 
 ## Usage
 
-To use this extension, follow these steps:
+You can access the extension's commands by:
 
-### Grammar check
-
-1. Select some text in the editor.
-2. Right-click on the selected text to open the context menu. Click on the "ChatGPT Grammar Check" command or use the keyboard shortcut "shift+cmd+'" to call the OpenAI GPT model with the selected text as input.
-3. The selected text will be replaced with the corrected text.
-
-### Custom query
-
-1. Select some text in the editor.
-2. Right-click on the selected text to open the context menu. Click on the "ChatGPT Custom Query" command.
-3. A prompt will appear asking for your custom query. Enter your query and press Enter.
-4. The selected text will be replaced with the generated response based on your custom query.
-
-### Generate unit test
-
-1. Select a code snippet in the editor.
-2. Right-click on the selected code to open the context menu. Click on the "ChatGPT Generate Unit Test" command.
-3. The generated unit test code will be appended after the selected code snippet.
+- Right-clicking in the editor and selecting the desired command from the context menu.
+- Using the default keybinding for the "ChatGPT Grammar Check" command: `Shift+Ctrl+'` (Windows/Linux) or `Shift+Cmd+'` (Mac).
+- Running the command from the Command Palette (Ctrl+Shift+P or Cmd+Shift+P) and searching for the desired command.
 
 Note: For the "Generate unit test" command, it's important to select the entire code snippet for which you want to generate unit tests.
 
 ## Sequence Diagram
 
-![sequence diagram](images/mermaid-diagram-20230319201405.png)
+![sequence diagram](images/mermaid-diagram-20230320103950.png)
