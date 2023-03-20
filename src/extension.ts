@@ -47,7 +47,6 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(chatWithGPTDisposable);
-  context.subscriptions.push(chatWithGPTDisposable);
   context.subscriptions.push(grammarDisposable);
   context.subscriptions.push(customQueryDisposable);
   context.subscriptions.push(generateUnitTestDisposable);
