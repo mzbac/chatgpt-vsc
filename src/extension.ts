@@ -3,11 +3,13 @@ import { getGenerateUnitTest } from "./commands/generateUnitTest";
 import { getGrammarCheck } from "./commands/grammarCheck";
 import { getCustomQuery } from "./commands/customQuery";
 import { getChatWithGPT } from "./commands/chatWithGPT";
+import { GetRecoverChatWithGPT } from "./commands/recoverChatWithGPT";
 
 let grammarDisposable: vscode.Disposable | undefined;
 let customQueryDisposable: vscode.Disposable | undefined;
 let generateUnitTestDisposable: vscode.Disposable | undefined;
 let chatWithGPTDisposable: vscode.Disposable | undefined;
+let recoverChatWithGPTDisposable: vscode.Disposable | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
   let apiKey = vscode.workspace
@@ -46,6 +48,12 @@ export async function activate(context: vscode.ExtensionContext) {
     getChatWithGPT(apiKey!)
   );
 
+  recoverChatWithGPTDisposable = vscode.commands.registerCommand(
+    "extension.recoverChatWithGPT",
+    GetRecoverChatWithGPT(apiKey!)
+  );
+
+  context.subscriptions.push(recoverChatWithGPTDisposable);
   context.subscriptions.push(chatWithGPTDisposable);
   context.subscriptions.push(grammarDisposable);
   context.subscriptions.push(customQueryDisposable);
@@ -64,5 +72,8 @@ export function deactivate() {
   }
   if (chatWithGPTDisposable) {
     chatWithGPTDisposable.dispose();
+  }
+  if (recoverChatWithGPTDisposable) {
+    recoverChatWithGPTDisposable.dispose();
   }
 }

@@ -2,7 +2,7 @@
   "name": "chatgpt-vsc",
   "displayName": "chatgpt-vsc",
   "description": "chatgpt integration to make developer life easier",
-  "version": "0.0.11",
+  "version": "0.0.13",
   "repository": {
     "type": "git",
     "url": "https://github.com/mzbac/chatgpt-vsc.git"
@@ -34,6 +34,10 @@
       {
         "command": "chatgpt-vsc.chatWithGPT",
         "title": "ChatGPT Chat"
+      },
+      {
+        "command": "extension.recoverChatWithGPT",
+        "title": "ChatGPT Recover Chat"
       }
     ],
     "menus": {
@@ -56,6 +60,11 @@
         {
           "command": "chatgpt-vsc.chatWithGPT",
           "when": "editorTextFocus",
+          "group": "chatgpt-vsc"
+        },
+        {
+          "command": "extension.recoverChatWithGPT",
+          "when": "resourceLangId == markdown",
           "group": "chatgpt-vsc"
         }
       ]

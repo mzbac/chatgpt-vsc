@@ -10,6 +10,7 @@ ChatGPT-VSC is a Visual Studio Code extension that integrates OpenAI GPT into yo
 - Custom code generation: Select a piece of code or just run the "ChatGPT Custom Query" command to generate code based on your custom query.
 - Unit test generation: Select a piece of code and run the "ChatGPT Generate Unit Test" command to generate unit tests for the selected code.
 - Chat with GPT: Run the "ChatGPT Chat" command to have a conversation with GPT in a new markdown file, where you can ask questions or get help on various topics.
+- Recover Chat with GPT: Open a previously saved ChatGPT conversation in Markdown format and run the "ChatGPT Recover Chat" command to recover and continue the conversation.
 
 ## Requirements
 
