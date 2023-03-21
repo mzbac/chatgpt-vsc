@@ -3,7 +3,7 @@ import { getGenerateUnitTest } from "./commands/generateUnitTest";
 import { getGrammarCheck } from "./commands/grammarCheck";
 import { getCustomQuery } from "./commands/customQuery";
 import { getChatWithGPT } from "./commands/chatWithGPT";
-import { GetRecoverChatWithGPT } from "./commands/recoverChatWithGPT";
+import { getRecoverChatWithGPT } from "./commands/recoverChatWithGPT";
 
 let grammarDisposable: vscode.Disposable | undefined;
 let customQueryDisposable: vscode.Disposable | undefined;
@@ -50,7 +50,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   recoverChatWithGPTDisposable = vscode.commands.registerCommand(
     "extension.recoverChatWithGPT",
-    GetRecoverChatWithGPT(apiKey!)
+    getRecoverChatWithGPT(apiKey!)
   );
 
   context.subscriptions.push(recoverChatWithGPTDisposable);

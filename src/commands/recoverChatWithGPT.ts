@@ -17,7 +17,7 @@ const parseMarkdownConversation = (markdown: string): Message[] => {
   return chatHistory;
 };
 
-export const GetRecoverChatWithGPT = (apiKey: string) => {
+export const getRecoverChatWithGPT = (apiKey: string) => {
   return async () => {
     const activeEditor = vscode.window.activeTextEditor;
     if (!activeEditor) {
