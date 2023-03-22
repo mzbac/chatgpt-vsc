@@ -41,7 +41,3 @@ You can access the extension's commands by:
 - Running the command from the Command Palette (Ctrl+Shift+P or Cmd+Shift+P) and searching for the desired command.
 
 Note: For the "Generate unit test" command, it's important to select the entire code snippet for which you want to generate unit tests.
-
-## Sequence Diagram
-
-![sequence diagram](images/mermaid-diagram-20230320103950.png)
