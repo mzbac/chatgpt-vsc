@@ -11,9 +11,7 @@ export const processSelectedText = async (
   selectedText: string,
   prompt?: string
 ): Promise<string | null> => {
-  const systemPrompt =
-    prompt ||
-    "You are a helpful assistant that corrects grammar mistakes, typos, factual errors, and translates text when necessary.";
+  const systemPrompt = prompt || "You are a helpful assistant.";
 
   try {
     const chatGPTRequest = getConfiguredChatGPTRequest([

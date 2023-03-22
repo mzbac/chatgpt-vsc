@@ -17,7 +17,8 @@ export const getGrammarCheck = (apiKey: string) => {
     showTemporaryStatusMessage("Calling ChatGPT API...", undefined, true);
     const correctedText = await processSelectedText(
       apiKey as string,
-      `Please correct, polish or translate the following text into standard English. Do not include any additional information or explanation in your output:[Text=${selectedText}]`
+      `Output only text no any quotes, explanation and original.Please correct, polish or translate the following text into standard English: [Text=${selectedText}]`,
+      "You are a helpful tool that corrects grammar mistakes, typos, factual errors, and translates text when necessary."
     );
     hideStatusMessage();
 
