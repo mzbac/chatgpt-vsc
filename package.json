@@ -2,13 +2,13 @@
   "name": "chatgpt-vsc",
   "displayName": "chatgpt-vsc",
   "description": "chatgpt integration to make developer life easier",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "repository": {
     "type": "git",
     "url": "https://github.com/mzbac/chatgpt-vsc.git"
   },
   "publisher": "mzbac",
-  "icon": "images/logo.jpeg",
+  "icon": "images/logo.png",
   "engines": {
     "vscode": "^1.76.0"
   },
