@@ -18,14 +18,32 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "chatgpt-vsc",
+          "title": "ChatGPT VSC",
+          "icon": "$(comment-discussion)"
+        }
+      ]
+    },
+    "views": {
+      "chatgpt-vsc": [
+        {
+          "type": "webview",
+          "id": "chatgpt-vsc.view",
+          "name": "Chat with GPT"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "chatgpt-vsc.grammar",
         "title": "ChatGPT Grammar Check"
       },
       {
-        "command": "chatgpt-vsc.customQuery",
-        "title": "ChatGPT Custom Query"
+        "command": "chatgpt-vsc.queryToWebview",
+        "title": "ChatGPT Ask ChatGPT"
       },
       {
         "command": "chatgpt-vsc.generateUnitTest",
@@ -48,7 +66,7 @@
           "group": "chatgpt-vsc"
         },
         {
-          "command": "chatgpt-vsc.customQuery",
+          "command": "chatgpt-vsc.queryToWebview",
           "when": "editorTextFocus",
           "group": "chatgpt-vsc"
         },
