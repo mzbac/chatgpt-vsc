@@ -1,15 +1,16 @@
 import * as vscode from "vscode";
 import { getGenerateUnitTest } from "./commands/generateUnitTest";
 import { getGrammarCheck } from "./commands/grammarCheck";
-import { getCustomQuery } from "./commands/customQuery";
 import { getChatWithGPT } from "./commands/chatWithGPT";
 import { getRecoverChatWithGPT } from "./commands/recoverChatWithGPT";
+import { ChatGptViewProvider } from "./webviews/ChatGptViewProvider";
+import { getQueryToWebview } from "./commands/queryToWebview";
 
 let grammarDisposable: vscode.Disposable | undefined;
-let customQueryDisposable: vscode.Disposable | undefined;
 let generateUnitTestDisposable: vscode.Disposable | undefined;
 let chatWithGPTDisposable: vscode.Disposable | undefined;
 let recoverChatWithGPTDisposable: vscode.Disposable | undefined;
+let queryToWebviewDisposable: vscode.Disposable | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
   let apiKey = vscode.workspace
@@ -33,11 +34,6 @@ export async function activate(context: vscode.ExtensionContext) {
     getGrammarCheck(apiKey!)
   );
 
-  customQueryDisposable = vscode.commands.registerCommand(
-    "chatgpt-vsc.customQuery",
-    getCustomQuery(apiKey!)
-  );
-
   generateUnitTestDisposable = vscode.commands.registerCommand(
     "chatgpt-vsc.generateUnitTest",
     getGenerateUnitTest(apiKey!)
@@ -56,16 +52,30 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(recoverChatWithGPTDisposable);
   context.subscriptions.push(chatWithGPTDisposable);
   context.subscriptions.push(grammarDisposable);
-  context.subscriptions.push(customQueryDisposable);
   context.subscriptions.push(generateUnitTestDisposable);
+
+  const chatGptViewProvider = new ChatGptViewProvider(context);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      "chatgpt-vsc.view",
+      chatGptViewProvider,
+      {
+        webviewOptions: { retainContextWhenHidden: true },
+      }
+    )
+  );
+
+  queryToWebviewDisposable = vscode.commands.registerCommand(
+    "chatgpt-vsc.queryToWebview",
+    getQueryToWebview(apiKey!, chatGptViewProvider)
+  );
+
+  context.subscriptions.push(queryToWebviewDisposable);
 }
 
 export function deactivate() {
   if (grammarDisposable) {
     grammarDisposable.dispose();
-  }
-  if (customQueryDisposable) {
-    customQueryDisposable.dispose();
   }
   if (generateUnitTestDisposable) {
     generateUnitTestDisposable.dispose();
